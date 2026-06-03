@@ -22,8 +22,8 @@ export const BARBERS: Barber[] = [
     name: 'Mariam',
     title: 'მთავარი სტილისტი',
     experience: '9+ წელი',
-    speciality: 'კლასიკური და თანამედროვე სტრიჟკები',
-    bio: '9 წელზე მეტი გამოცდილებით, მარიამი ზუსტ სტრიჟკებს და პერსონალიზებულ სტაილინგს გვთავაზობს.',
+    speciality: 'კლასიკური და თანამედროვე თმის შეჭრა',
+    bio: '9 წელზე მეტი გამოცდილებით, მარიამი ზუსტ თმის შეჭრას და პერსონალიზებულ სტაილინგს გვთავაზობს.',
     calendarEnvKey: 'CALENDAR_ID_MARIAM',
   },
   {
@@ -41,7 +41,7 @@ export const BARBERS: Barber[] = [
     title: 'სტილისტი',
     experience: '4+ წელი',
     speciality: 'თანამედროვე სტაილები',
-    bio: 'ნაბი თანამედროვე სტრიჟკებს ახალი ხედვით მიუდგება და უახლეს ტენდენციებში სპეციალიზირდება.',
+    bio: 'ნაბი თანამედროვე თმის შეჭრას ახალი ხედვით მიუდგება და უახლეს ტენდენციებში სპეციალიზირდება.',
     calendarEnvKey: 'CALENDAR_ID_NABI',
   },
   {
@@ -67,10 +67,10 @@ export const BARBERS: Barber[] = [
 export const SERVICES: Service[] = [
   {
     id: 'haircut',
-    name: 'სტრიჟკა',
+    name: 'თმის შეჭრა',
     duration: 45,
     price: 35,
-    description: 'კლასიკური ან თანამედროვე სტრიჟკა, მორგებული შენს სტილზე',
+    description: 'კლასიკური ან თანამედროვე თმის შეჭრა, მორგებული შენს სტილზე',
   },
   {
     id: 'beard-trim',
@@ -81,10 +81,10 @@ export const SERVICES: Service[] = [
   },
   {
     id: 'haircut-beard',
-    name: 'სტრიჟკა + წვერი',
+    name: 'თმა + წვერი',
     duration: 75,
     price: 50,
-    description: 'სრული პაკეტი – სტრიჟკა და წვერი ერთ სეანსში',
+    description: 'სრული პაკეტი – თმის შეჭრა და წვერი ერთ სეანსში',
   },
   {
     id: 'royal-shave',
@@ -109,10 +109,10 @@ export const SERVICES: Service[] = [
   },
   {
     id: 'kids-haircut',
-    name: 'ბავშვის სტრიჟკა',
+    name: 'ბავშვის თმის შეჭრა',
     duration: 30,
     price: 25,
-    description: 'ლმობიერი სტრიჟკა ახალგაზრდა ჯენტლმენებისთვის (12 წლამდე)',
+    description: 'ლმობიერი თმის შეჭრა ახალგაზრდა ჯენტლმენებისთვის (12 წლამდე)',
   },
 ]
 
