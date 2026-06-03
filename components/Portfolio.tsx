@@ -14,16 +14,20 @@ type Photo = {
   createdAt: number
 }
 
+type InstagramPost = { url: string; thumbnail: string }
+
 export default function Portfolio() {
   const [photos, setPhotos] = useState<Photo[]>([])
+  const [igPosts, setIgPosts] = useState<InstagramPost[]>([])
   const [filter, setFilter] = useState<string>('all')
   const [lightbox, setLightbox] = useState<Photo | null>(null)
 
   useEffect(() => {
     fetch('/api/photos').then(r => r.json()).then(d => setPhotos(d.photos ?? []))
+    fetch('/api/instagram-thumbnails').then(r => r.json()).then(d => setIgPosts(d.posts ?? []))
   }, [])
 
-  if (photos.length === 0) return null
+  if (photos.length === 0 && igPosts.length === 0) return null
 
   const featured = photos.filter(p => p.type === 'featured')
   const beforeAfter = photos.filter(p => p.type === 'before-after')
@@ -144,6 +148,36 @@ export default function Portfolio() {
                     <span className="text-white text-2xl">+</span>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Instagram grid */}
+        {igPosts.length > 0 && (
+          <div className="mt-12">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="divider-gold" />
+              <span className="text-xs tracking-[0.3em] uppercase text-gold">Instagram</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {igPosts.map(post => (
+                <a
+                  key={post.url}
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative aspect-square overflow-hidden group block"
+                >
+                  <img
+                    src={post.thumbnail}
+                    alt="Instagram"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-ink/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="text-white text-xs tracking-widest uppercase border border-white/50 px-3 py-1.5">Instagram ↗</span>
+                  </div>
+                </a>
               ))}
             </div>
           </div>

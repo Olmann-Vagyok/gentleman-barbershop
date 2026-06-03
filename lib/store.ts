@@ -85,3 +85,19 @@ export async function setPhotos(data: Photo[]): Promise<void> {
   const db = await kv()
   await db.set('photos', data)
 }
+
+export async function getInstagramUrls(): Promise<string[]> {
+  if (!kvAvailable()) return []
+  try {
+    const db = await kv()
+    const stored = await db.get<string[]>('instagram_urls')
+    return stored ?? []
+  } catch {
+    return []
+  }
+}
+
+export async function setInstagramUrls(urls: string[]): Promise<void> {
+  const db = await kv()
+  await db.set('instagram_urls', urls)
+}

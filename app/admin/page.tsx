@@ -21,6 +21,8 @@ export default function AdminPage() {
   const [bookingsError, setBookingsError] = useState('')
   const [calendarNotConfigured, setCalendarNotConfigured] = useState(false)
   const [photos, setPhotos] = useState<Photo[]>([])
+  const [igUrls, setIgUrls] = useState<string[]>([])
+  const [igInput, setIgInput] = useState('')
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
@@ -65,9 +67,30 @@ export default function AdminPage() {
     setPhotos(data.photos ?? [])
   }, [])
 
+  const loadIgUrls = useCallback(async () => {
+    const pw = localStorage.getItem('admin_pw') ?? ''
+    const res = await fetch('/api/admin/instagram', { headers: { 'x-admin-password': pw } })
+    const data = await res.json()
+    setIgUrls(data.urls ?? [])
+  }, [])
+
+  async function addIgUrl() {
+    if (!igInput.trim()) return
+    const pw = localStorage.getItem('admin_pw') ?? ''
+    await fetch('/api/admin/instagram', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-password': pw }, body: JSON.stringify({ url: igInput }) })
+    setIgInput('')
+    await loadIgUrls()
+  }
+
+  async function deleteIgUrl(url: string) {
+    const pw = localStorage.getItem('admin_pw') ?? ''
+    await fetch('/api/admin/instagram', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'x-admin-password': pw }, body: JSON.stringify({ url }) })
+    setIgUrls(prev => prev.filter(u => u !== url))
+  }
+
   useEffect(() => {
-    if (authed) { loadBookings(); loadPhotos() }
-  }, [authed, loadBookings, loadPhotos])
+    if (authed) { loadBookings(); loadPhotos(); loadIgUrls() }
+  }, [authed, loadBookings, loadPhotos, loadIgUrls])
 
   async function uploadPhoto(file: File, meta: Omit<Photo, 'id' | 'url' | 'createdAt'>) {
     setUploading(true)
@@ -450,6 +473,33 @@ export default function AdminPage() {
                 </div>
               </div>
               <GalleryUpload barbers={barbers} onUpload={uploadPhoto} uploading={uploading} />
+              {/* Instagram URLs */}
+              <div className="mt-8 bg-[#141414] border border-[#1e1e1e] p-6">
+                <p className="text-[10px] tracking-widest uppercase text-gray-600 mb-4">Instagram პოსტები</p>
+                <div className="flex gap-2 mb-4">
+                  <input
+                    value={igInput}
+                    onChange={e => setIgInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && addIgUrl()}
+                    placeholder="https://www.instagram.com/p/..."
+                    className="flex-1 bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2 text-sm outline-none focus:border-[#C9A84C]"
+                  />
+                  <button onClick={addIgUrl} className="px-4 py-2 bg-[#C9A84C] text-[#0a0a0a] text-xs font-bold tracking-widest uppercase hover:bg-[#b8953d] transition-colors">
+                    დამატება
+                  </button>
+                </div>
+                {igUrls.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    {igUrls.map(url => (
+                      <div key={url} className="flex items-center justify-between gap-3 py-2 border-b border-[#1e1e1e]">
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-white truncate">{url}</a>
+                        <button onClick={() => deleteIgUrl(url)} className="text-red-400 text-xs hover:text-red-300 shrink-0">წაშლა ✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {photos.length > 0 && (
                 <div className="mt-10">
                   <p className="text-[10px] tracking-widest uppercase text-gray-600 mb-4">ატვირთული ({photos.length})</p>
