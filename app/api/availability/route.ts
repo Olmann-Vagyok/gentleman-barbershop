@@ -5,14 +5,16 @@ import { format, addMinutes } from 'date-fns'
 
 function mockSlots(durationMinutes: number) {
   const slots = []
-  const base = new Date()
-  base.setHours(WORKING_HOURS.startHour, 0, 0, 0)
-  const end = new Date()
-  end.setHours(WORKING_HOURS.endHour, 0, 0, 0)
-  let current = new Date(base)
-  while (addMinutes(current, durationMinutes) <= end) {
-    slots.push({ time: format(current, 'HH:mm'), available: true })
-    current = addMinutes(current, 30)
+  let totalMinutes = WORKING_HOURS.startHour * 60
+  const endMinutes = WORKING_HOURS.endHour * 60
+  while (totalMinutes + durationMinutes <= endMinutes) {
+    const h = Math.floor(totalMinutes / 60)
+    const m = totalMinutes % 60
+    slots.push({
+      time: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+      available: true,
+    })
+    totalMinutes += 30
   }
   return slots
 }

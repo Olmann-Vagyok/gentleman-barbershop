@@ -49,7 +49,8 @@ export async function getAvailableSlots(
       return current < busyEnd && slotEnd > busyStart
     })
 
-    slots.push({ time: format(current, 'HH:mm'), available: !isOccupied })
+    const tbilisiTime = addMinutes(current, 4 * 60)
+    slots.push({ time: format(tbilisiTime, 'HH:mm'), available: !isOccupied })
     current = addMinutes(current, 30)
   }
 
