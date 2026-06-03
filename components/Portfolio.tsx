@@ -27,11 +27,16 @@ export default function Portfolio() {
 
   useEffect(() => {
     if (igUrls.length === 0) return
+    const w = window as any
+    if (w.instgrm) {
+      w.instgrm.Embeds.process()
+      return
+    }
     const script = document.createElement('script')
     script.src = '//www.instagram.com/embed.js'
     script.async = true
+    script.onload = () => w.instgrm?.Embeds?.process()
     document.body.appendChild(script)
-    return () => { document.body.removeChild(script) }
   }, [igUrls])
 
   if (photos.length === 0 && igUrls.length === 0) return null
