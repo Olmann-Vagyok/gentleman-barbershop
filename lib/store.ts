@@ -38,7 +38,7 @@ export async function getShopInfo(): Promise<ShopInfo> {
   try {
     const db = await kv()
     const stored = await db.get<ShopInfo>('shopInfo')
-    return stored ?? SHOP_INFO
+    return stored ? { ...SHOP_INFO, ...stored } : SHOP_INFO
   } catch {
     return SHOP_INFO
   }
