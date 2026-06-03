@@ -1,6 +1,8 @@
+import { unstable_noStore as noStore } from 'next/cache'
 import { getShopInfo } from '@/lib/store'
 
 export default async function Hero() {
+  noStore()
   const info = await getShopInfo()
 
   return (
