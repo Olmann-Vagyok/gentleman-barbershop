@@ -22,6 +22,7 @@ export default function AdminPage() {
   const [shopInfo, setShopInfo] = useState<ShopInfo | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
   const [bookingsError, setBookingsError] = useState('')
+  const [calendarNotConfigured, setCalendarNotConfigured] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -56,7 +57,8 @@ export default function AdminPage() {
     const pw = localStorage.getItem('admin_pw') ?? ''
     const res = await fetch('/api/admin/bookings', { headers: { 'x-admin-password': pw } })
     const data = await res.json()
-    if (data.error && data.error !== 'Google Calendar not configured') setBookingsError(data.error)
+    if (data.error === 'Google Calendar not configured') setCalendarNotConfigured(true)
+    else if (data.error) setBookingsError(data.error)
     setBookings(data.bookings ?? [])
   }, [])
 
@@ -204,7 +206,7 @@ export default function AdminPage() {
             {bookings.length === 0 ? (
               <div className="border border-[#2a2a2a] bg-[#141414] p-8 text-center">
                 <p className="text-gray-500 text-sm">
-                  {!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+                  {calendarNotConfigured
                     ? 'Google Calendar არ არის დაკავშირებული. დააყენე env ცვლადები Vercel-ში.'
                     : 'მომდევნო 30 დღეში ჯავშანი არ არის.'}
                 </p>
