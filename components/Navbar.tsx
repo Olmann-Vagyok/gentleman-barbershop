@@ -6,6 +6,7 @@ import { SHOP_INFO } from '@/lib/data'
 const navLinks = [
   { label: 'სერვისები', href: '#services' },
   { label: 'გუნდი', href: '#team' },
+  { label: 'პორტფოლიო', href: '#portfolio' },
   { label: 'ჯავშანი', href: '#booking' },
   { label: 'კონტაქტი', href: '#contact' },
 ]
@@ -28,15 +29,8 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-3 group">
-          <span className="w-8 h-8 border border-gold flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1L13 4V10L7 13L1 10V4L7 1Z" stroke="#C9A84C" strokeWidth="1.2" />
-            </svg>
-          </span>
-          <span className="font-serif text-white text-lg tracking-widest uppercase">
-            Gentleman
-          </span>
+        <a href="#" className="flex items-center group">
+          <img src="/Logo.jpg" alt="Gentleman Barbershop" className="h-10 w-auto object-contain" />
         </a>
 
         {/* Desktop nav */}

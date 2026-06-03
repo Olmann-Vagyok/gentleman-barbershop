@@ -7,15 +7,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-8 border border-gold flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1L13 4V10L7 13L1 10V4L7 1Z" stroke="#C9A84C" strokeWidth="1.2" />
-                </svg>
-              </span>
-              <span className="font-serif text-white text-lg tracking-widest uppercase">
-                Gentleman
-              </span>
+            <div className="mb-4">
+              <img src="/Logo.jpg" alt="Gentleman Barbershop" className="h-14 w-auto object-contain" />
             </div>
             <p className="text-gray-500 text-sm leading-relaxed mb-4">
               პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, მოვლა და სტაილინგი –

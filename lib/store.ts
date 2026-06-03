@@ -58,3 +58,30 @@ export async function setShopInfo(data: ShopInfo): Promise<void> {
   const db = await kv()
   await db.set('shopInfo', data)
 }
+
+export type Photo = {
+  id: string
+  url: string
+  type: 'gallery' | 'before-after' | 'featured'
+  barberId?: string
+  caption?: string
+  beforeUrl?: string
+  afterUrl?: string
+  createdAt: number
+}
+
+export async function getPhotos(): Promise<Photo[]> {
+  if (!kvAvailable()) return []
+  try {
+    const db = await kv()
+    const stored = await db.get<Photo[]>('photos')
+    return stored ?? []
+  } catch {
+    return []
+  }
+}
+
+export async function setPhotos(data: Photo[]): Promise<void> {
+  const db = await kv()
+  await db.set('photos', data)
+}
