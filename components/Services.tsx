@@ -1,13 +1,13 @@
 import { SERVICES } from '@/lib/data'
 
 const serviceIcons: Record<string, string> = {
-  haircut: '✦',
-  'beard-trim': '◈',
-  'haircut-beard': '✦',
-  'royal-shave': '◇',
-  'hair-wash': '◈',
-  'hair-wax': '◆',
-  'kids-haircut': '✦',
+  haircut: '✂️',
+  'beard-trim': '🪔',
+  'haircut-beard': '💇',
+  'royal-shave': '🪓',
+  'hair-wash': '🪔',
+  'hair-wax': '🪖',
+  'kids-haircut': '✂️',
 }
 
 export default function Services() {
@@ -18,12 +18,12 @@ export default function Services() {
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-4">
             <div className="divider-gold" />
-            <span className="text-xs tracking-[0.3em] uppercase text-gold">Our Services</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-gold">ჩვენი სერვისები</span>
           </div>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-white">
-            Crafted for the
+            შექმნილია
             <br />
-            <span className="text-gold-gradient">Modern Gentleman</span>
+            <span className="text-gold-gradient">თანამედროვე ჯენტლმენისთვის</span>
           </h2>
         </div>
 
@@ -33,11 +33,11 @@ export default function Services() {
             <a
               key={service.id}
               href="#booking"
-              className="card-hover group relative p-6 border border-ink-300 bg-ink flex flex-col gap-4"
+              className="card-hover group relative p-6 border border-ink-300 bg-ink flex flex--col gap-4"
             >
               {/* Icon */}
               <span className="text-gold text-xl opacity-60 group-hover:opacity-100 transition-opacity">
-                {serviceIcons[service.id] ?? '✦'}
+                {serviceIcons[service.id] ?? '✂️'}
               </span>
 
               {/* Name & description */}
@@ -52,7 +52,7 @@ export default function Services() {
                   {service.price}
                   <span className="text-sm font-sans text-gray-400 ml-1">GEL</span>
                 </span>
-                <span className="text-xs text-gray-500 tracking-wide">{service.duration} min</span>
+                <span className="text-xs text-gray-500 tracking-wide">{service.duration} წთ</span>
               </div>
 
               {/* Hover accent line */}
@@ -63,7 +63,7 @@ export default function Services() {
 
         {/* Bottom note */}
         <p className="text-gray-600 text-xs mt-8 text-center tracking-wide">
-          All prices in Georgian Lari (GEL) · Walk-ins welcome · Mon–Sun 11:00–20:00
+          ყველა ფასი ლარში (GEL) · ჩანაწერის გარეშე მოსვლა შესაძლებელია · ორშ–კვი 11:00–20:00
         </p>
       </div>
     </section>

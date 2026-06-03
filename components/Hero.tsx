@@ -44,7 +44,7 @@ export default function Hero() {
         <div className="flex items-center gap-4 mb-10">
           <div className="w-12 h-px bg-gold opacity-60" />
           <span className="text-xs tracking-[0.3em] uppercase text-gold opacity-80">
-            Est. Tbilisi, Georgia
+            დაარსდა თბილისში, საქართველო
           </span>
         </div>
 
@@ -68,26 +68,26 @@ export default function Hero() {
 
         {/* Description */}
         <p className="text-gray-400 text-base md:text-lg max-w-md leading-relaxed mb-14">
-          Premium barbershop in Tbilisi. Expert cuts, beard grooming, and styling by a team of
-          dedicated craftsmen. Open every day.
+          პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, წვერის მოვლა და სტაილინგი
+          გამოცდილ ოსტატთა გუნდისგან. ყოველ დღე ღიაა.
         </p>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4">
           <a href="#booking" className="btn-gold inline-block text-center">
-            Book Appointment
+            დაჯავშნე ვიზიტი
           </a>
           <a href="#services" className="btn-outline inline-block text-center">
-            Explore Services
+            სერვისები
           </a>
         </div>
 
         {/* Stats bar */}
         <div className="mt-20 pt-8 border-t border-ink-300 grid grid-cols-3 gap-8 max-w-md">
           {[
-            { value: '5', label: 'Expert Barbers' },
-            { value: SHOP_INFO.rating, label: 'Avg. Rating' },
-            { value: '7', label: 'Days a Week' },
+            { value: '5', label: 'გამოცდილი ბარბერი' },
+            { value: SHOP_INFO.rating, label: 'საშ. შეფასება' },
+            { value: '7', label: 'დღე კვირაში' },
           ].map(stat => (
             <div key={stat.label}>
               <div className="font-serif text-3xl text-white font-bold">{stat.value}</div>
@@ -99,7 +99,7 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 animate-bounce">
-        <span className="text-[10px] tracking-[0.3em] uppercase text-gray-400">Scroll</span>
+        <span className="text-[10px] tracking-[0.3em] uppercase text-gray-400">გადაახვიე</span>
         <div className="w-px h-8 bg-gray-500" />
       </div>
     </section>

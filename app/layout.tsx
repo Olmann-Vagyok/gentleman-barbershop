@@ -15,20 +15,20 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'Gentleman Barbershop Tbilisi',
+  title: 'Gentleman Barbershop თბილისი',
   description:
-    'Premium barbershop in Tbilisi. Expert haircuts, beard grooming, and styling. Book your appointment online.',
-  keywords: 'barbershop tbilisi, haircut tbilisi, beard trim, gentleman barbershop',
+    'პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, წვერის მოვლა და სტაილინგი. დაჯავშნე ონლაინ.',
+  keywords: 'სალონი თბილისი, სტრიჟკა თბილისი, წვერის შეჭრა, gentleman barbershop',
   openGraph: {
-    title: 'Gentleman Barbershop Tbilisi',
-    description: 'Precision. Style. Character. Premium barbershop in the heart of Tbilisi.',
+    title: 'Gentleman Barbershop თბილისი',
+    description: 'სიზუსტე. სტილი. ხასიათი. პრემიუმ სალონი თბილისის გულში.',
     type: 'website',
   },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="ka" className={`${inter.variable} ${playfair.variable}`}>
       <body>{children}</body>
     </html>
   )

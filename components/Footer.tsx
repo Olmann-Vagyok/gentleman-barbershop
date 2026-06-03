@@ -18,15 +18,15 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-gray-500 text-sm leading-relaxed mb-4">
-              Premium barbershop in Tbilisi. Expert cuts, grooming, and styling — every day of the
-              week.
+              პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, მოვლა და სტაილინგი –
+              კვირის ყოველ დღე.
             </p>
             <p className="text-gold text-xs tracking-widest">{SHOP_INFO.tagline}</p>
           </div>
 
           {/* Services */}
           <div>
-            <p className="text-xs tracking-widest uppercase text-gray-600 mb-5">Services</p>
+            <p className="text-xs tracking-widest uppercase text-gray-600 mb-5">სერვისები</p>
             <ul className="flex flex-col gap-2">
               {SERVICES.map(s => (
                 <li key={s.id}>
@@ -44,7 +44,7 @@ export default function Footer() {
 
           {/* Info */}
           <div>
-            <p className="text-xs tracking-widest uppercase text-gray-600 mb-5">Contact</p>
+            <p className="text-xs tracking-widest uppercase text-gray-600 mb-5">კონტაქტი</p>
             <div className="flex flex-col gap-3">
               <a href={`tel:${SHOP_INFO.phone}`} className="text-gray-400 hover:text-white text-sm transition-colors">
                 {SHOP_INFO.phone}
@@ -62,7 +62,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-ink-300 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-gray-700 text-xs">
-            © {new Date().getFullYear()} Gentleman Barbershop Tbilisi. All rights reserved.
+            © {new Date().getFullYear()} Gentleman Barbershop თბილისი. ყველა უფლება დაცულია.
           </p>
           <div className="flex gap-6">
             <a
@@ -71,7 +71,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-gold text-xs tracking-widest uppercase transition-colors"
             >
-              Instagram
+              ინსტაგრამი
             </a>
             <a
               href={SHOP_INFO.facebook}
@@ -79,10 +79,10 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-gold text-xs tracking-widest uppercase transition-colors"
             >
-              Facebook
+              ფეისბუქი
             </a>
             <a href="#booking" className="text-gray-600 hover:text-gold text-xs tracking-widest uppercase transition-colors">
-              Book Now
+              დაჯავშნე
             </a>
           </div>
         </div>

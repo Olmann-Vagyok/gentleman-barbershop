@@ -2,32 +2,32 @@ import { SHOP_INFO } from '@/lib/data'
 
 const contactItems = [
   {
-    label: 'Address',
+    label: 'მისამართი',
     value: `${SHOP_INFO.address}, ${SHOP_INFO.city}`,
-    sub: `Near ${SHOP_INFO.metro}`,
+    sub: `${SHOP_INFO.metro}-ის მახლობლად`,
     href: SHOP_INFO.mapUrl,
-    icon: '◎',
+    icon: '🗺️',
   },
   {
-    label: 'Phone',
+    label: 'ტელეფონი',
     value: SHOP_INFO.phone,
-    sub: 'Call or WhatsApp',
+    sub: 'დარეკე ან WhatsApp',
     href: `tel:${SHOP_INFO.phone.replace(/\s/g, '')}`,
-    icon: '◈',
+    icon: '☎️',
   },
   {
-    label: 'Email',
+    label: 'ელ-ფოსტა',
     value: SHOP_INFO.email,
     sub: null,
     href: `mailto:${SHOP_INFO.email}`,
-    icon: '◇',
+    icon: '📧',
   },
   {
-    label: 'Hours',
+    label: 'სამუშაო საათები',
     value: SHOP_INFO.hours,
-    sub: 'No appointment needed for walk-ins',
+    sub: 'ჩანაწერის გარეშე მოსვლა შესაძლებელია',
     href: null,
-    icon: '◆',
+    icon: '🕐',
   },
 ]
 
@@ -39,12 +39,12 @@ export default function Contact() {
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-4">
             <div className="divider-gold" />
-            <span className="text-xs tracking-[0.3em] uppercase text-gold">Find Us</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-gold">მოგვინახულე</span>
           </div>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-white">
-            Visit the
+            მოდი
             <br />
-            <span className="text-gold-gradient">Barbershop</span>
+            <span className="text-gold-gradient">სალონში</span>
           </h2>
         </div>
 
@@ -73,7 +73,7 @@ export default function Contact() {
 
             {/* Social links */}
             <div className="border border-ink-300 bg-ink-100 p-6 sm:col-span-2">
-              <p className="text-xs tracking-widest uppercase text-gray-600 mb-4">Follow Us</p>
+              <p className="text-xs tracking-widest uppercase text-gray-600 mb-4">გამოგვყევი</p>
               <div className="flex gap-4">
                 <a
                   href={SHOP_INFO.instagram}
@@ -84,7 +84,7 @@ export default function Contact() {
                   <div className="w-8 h-8 border border-ink-400 group-hover:border-gold flex items-center justify-center transition-colors text-xs">
                     IG
                   </div>
-                  @gentlemantbilisi
+                  @gentlemanibilisi
                 </a>
                 <a
                   href={SHOP_INFO.facebook}
@@ -104,8 +104,8 @@ export default function Contact() {
           {/* Map embed */}
           <div className="relative border border-ink-300 overflow-hidden min-h-[320px]">
             <iframe
-              title="Gentleman Barbershop location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2977.4!2d44.78069!3d41.71896!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDQzJzA4LjIiTiA0NMKwNDYnNTAuNSJF!5e0!3m2!1sen!2sge!4v1"
+              title="Gentleman Barbershop-ის მდებარეობა"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2977.4!2d44.780689!3d41.71896!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!zNDHCsRDQzJzA4LjIiTiA0NMKw4N7JzA4LjIiRTiTiA0N!5e0!3m2!1sen!2sge!4v1"
               width="100%"
               height="100%"
               style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)', minHeight: '320px' }}

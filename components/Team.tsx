@@ -16,12 +16,12 @@ export default function Team() {
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-4">
             <div className="divider-gold" />
-            <span className="text-xs tracking-[0.3em] uppercase text-gold">The Team</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-gold">გუნდი</span>
           </div>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-white">
-            Meet Your
+            გაიცანი შენი
             <br />
-            <span className="text-gold-gradient">Barbers</span>
+            <span className="text-gold-gradient">ბარბერები</span>
           </h2>
         </div>
 
@@ -71,7 +71,7 @@ export default function Team() {
                 href="#booking"
                 className="block w-full py-3 text-center text-xs tracking-widest uppercase text-gray-500 hover:text-gold hover:bg-ink-200 transition-all border-t border-ink-300"
               >
-                Book with {barber.name}
+                დაჯავშნე {barber.name}-თან
               </a>
             </div>
           ))}

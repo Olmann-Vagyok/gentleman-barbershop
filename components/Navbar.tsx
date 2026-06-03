@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { SHOP_INFO } from '@/lib/data'
 
 const navLinks = [
-  { label: 'Services', href: '#services' },
-  { label: 'Team', href: '#team' },
-  { label: 'Book', href: '#booking' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'სერვისები', href: '#services' },
+  { label: 'გუნდი', href: '#team' },
+  { label: 'ჯავშანი', href: '#booking' },
+  { label: 'კონტაქტი', href: '#contact' },
 ]
 
 export default function Navbar() {
@@ -54,14 +54,14 @@ export default function Navbar() {
 
         {/* CTA */}
         <a href="#booking" className="hidden md:block btn-gold text-xs">
-          Book Now
+          დაჯავშნე
         </a>
 
         {/* Mobile hamburger */}
         <button
           className="md:hidden flex flex-col gap-1.5 p-2"
           onClick={() => setMenuOpen(v => !v)}
-          aria-label="Toggle menu"
+          aria-label="მენიუს გახსნა"
         >
           <span
             className={`block w-6 h-px bg-white transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
@@ -97,7 +97,7 @@ export default function Navbar() {
             onClick={() => setMenuOpen(false)}
             className="btn-gold text-center mt-2"
           >
-            Book Now
+            დაჯავშნე
           </a>
         </nav>
       </div>

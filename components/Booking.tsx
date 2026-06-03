@@ -8,7 +8,7 @@ type TimeSlot = { time: string; available: boolean }
 type ClientInfo = { name: string; phone: string; email: string; notes: string }
 type BookingResult = { success: boolean; eventId?: string; error?: string }
 
-const STEPS = ['Service', 'Barber', 'Date & Time', 'Details', 'Done']
+const STEPS = ['სერვისი', 'ბარბერი', 'თარიღი და დრო', 'დეტალები', 'დასრულება']
 
 const today = startOfDay(new Date())
 
@@ -59,8 +59,8 @@ function ServiceStep({
 }) {
   return (
     <div>
-      <h3 className="font-serif text-2xl text-white mb-2">Choose Your Service</h3>
-      <p className="text-gray-500 text-sm mb-8">Select the service you'd like to book.</p>
+      <h3 className="font-serif text-2xl text-white mb-2">აირჩიე სერვისი</h3>
+      <p className="text-gray-500 text-sm mb-8">აირჩიე სასურველი სერვისი.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {SERVICES.map(service => (
           <button
@@ -73,7 +73,7 @@ function ServiceStep({
               <span className="font-serif text-gold font-bold text-lg ml-4">{service.price} GEL</span>
             </div>
             <p className="text-gray-500 text-xs leading-relaxed mb-3">{service.description}</p>
-            <span className="text-[10px] uppercase tracking-widest text-gray-600">{service.duration} min</span>
+            <span className="text-[10px] uppercase tracking-widest text-gray-600">{service.duration} წთ</span>
           </button>
         ))}
       </div>
@@ -90,8 +90,8 @@ function BarberStep({
 }) {
   return (
     <div>
-      <h3 className="font-serif text-2xl text-white mb-2">Choose Your Barber</h3>
-      <p className="text-gray-500 text-sm mb-8">Pick who you'd like to book with.</p>
+      <h3 className="font-serif text-2xl text-white mb-2">აირჩიე ბარბერი</h3>
+      <p className="text-gray-500 text-sm mb-8">აირჩიე ვისთან გინდა ჯავშანი.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {BARBERS.map(barber => (
           <button
@@ -147,7 +147,7 @@ function CalendarPicker({ selected, onSelect }: { selected: string; onSelect: (d
       </div>
       {/* Weekday headers */}
       <div className="grid grid-cols-7 mb-2">
-        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+        {['ორ', 'სამ', 'ოთ', 'ხუ', 'პარ', 'შა', 'კვ'].map(d => (
           <div key={d} className="text-center text-[10px] text-gray-600 tracking-wide py-1">
             {d}
           </div>
@@ -171,7 +171,7 @@ function CalendarPicker({ selected, onSelect }: { selected: string; onSelect: (d
                 isSelected
                   ? 'bg-gold text-ink font-bold'
                   : isT
-                  ? 'border border-gold/50 text-gold'
+                  ? 'border border-gold-50 text-gold'
                   : isPast
                   ? 'text-gray-700 cursor-not-allowed'
                   : 'text-gray-300 hover:bg-ink-300 hover:text-white'
@@ -217,7 +217,7 @@ function DateTimeStep({
       const data = await res.json()
       setSlots(data.slots)
     } catch {
-      setError('Could not load availability. Please try again.')
+      setError('ხელმისაწვდომობის ჩატვირთვა ვერ მოხერხდა. სცადე ხელახლა.')
       setSlots([])
     } finally {
       setLoading(false)
@@ -230,13 +230,13 @@ function DateTimeStep({
 
   return (
     <div>
-      <h3 className="font-serif text-2xl text-white mb-2">Pick a Date & Time</h3>
-      <p className="text-gray-500 text-sm mb-8">Choose when you'd like to come in.</p>
+      <h3 className="font-serif text-2xl text-white mb-2">აირჩიე თარიღი და დრო</h3>
+      <p className="text-gray-500 text-sm mb-8">აირჩიე როდის გინდა მოსვლა.</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Calendar */}
         <div>
-          <p className="text-xs tracking-widest uppercase text-gray-500 mb-3">Select Date</p>
+          <p className="text-xs tracking-widest uppercase text-gray-500 mb-3">თარიღის არჩევა</p>
           <CalendarPicker selected={selectedDate} onSelect={onDateSelect} />
         </div>
 
@@ -244,19 +244,19 @@ function DateTimeStep({
         <div>
           <p className="text-xs tracking-widest uppercase text-gray-500 mb-3">
             {selectedDate
-              ? `Available Times — ${format(new Date(selectedDate + 'T12:00:00'), 'EEEE, d MMM')}`
-              : 'Select a date first'}
+              ? `ხელმისაწვდომი დრო – ${format(new Date(selectedDate + 'T12:00:00'), 'EEEE, d MMM')}`
+              : 'ჯერ აირჩიე თარიღი'}
           </p>
           {!selectedDate && (
             <div className="border border-ink-300 bg-ink-200 h-[280px] flex items-center justify-center">
-              <span className="text-gray-600 text-sm">← Pick a date</span>
+              <span className="text-gray-600 text-sm">← თარიღის ასარჩევად</span>
             </div>
           )}
           {selectedDate && loading && (
             <div className="border border-ink-300 bg-ink-200 h-[280px] flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-                <span className="text-gray-500 text-xs">Loading availability…</span>
+                <span className="text-gray-500 text-xs">იტვირთება...</span>
               </div>
             </div>
           )}
@@ -283,7 +283,7 @@ function DateTimeStep({
           )}
           {selectedDate && !loading && !error && slots.length === 0 && (
             <div className="border border-ink-300 bg-ink-200 p-4 text-gray-500 text-sm text-center">
-              No slots available for this date.
+              ამ თარიღისთვის თავისუფალი დრო არ არის.
             </div>
           )}
         </div>
@@ -301,27 +301,27 @@ function DetailsStep({
 }) {
   return (
     <div>
-      <h3 className="font-serif text-2xl text-white mb-2">Your Details</h3>
+      <h3 className="font-serif text-2xl text-white mb-2">შენი მონაცემები</h3>
       <p className="text-gray-500 text-sm mb-8">
-        We'll use this to confirm your appointment. A calendar invite will be sent to your email.
+        ეს გამოვიყენებთ ჩანაწერის დასადასტურებლად. ელ-ფოსტაზე გაიგზავნება კალენდრის მოწვევა.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
         <div className="flex flex-col gap-2">
           <label className="text-xs tracking-widest uppercase text-gray-500">
-            Full Name <span className="text-gold">*</span>
+            სახელი და გვარი <span className="text-gold">*</span>
           </label>
           <input
             type="text"
             value={info.name}
             onChange={e => onChange('name', e.target.value)}
-            placeholder="Your name"
+            placeholder="შენი სახელი"
             className="input-dark px-4 py-3 text-sm w-full"
             required
           />
         </div>
         <div className="flex flex-col gap-2">
           <label className="text-xs tracking-widest uppercase text-gray-500">
-            Phone <span className="text-gold">*</span>
+            ტელეფონი <span className="text-gold">*</span>
           </label>
           <input
             type="tel"
@@ -333,21 +333,21 @@ function DetailsStep({
           />
         </div>
         <div className="flex flex-col gap-2 sm:col-span-2">
-          <label className="text-xs tracking-widest uppercase text-gray-500">Email</label>
+          <label className="text-xs tracking-widest uppercase text-gray-500">ელ-ფოსტა</label>
           <input
             type="email"
             value={info.email}
             onChange={e => onChange('email', e.target.value)}
-            placeholder="For calendar invite (optional)"
+            placeholder="კალენდრის მოწვევისთვის (სურვილისამებრ)"
             className="input-dark px-4 py-3 text-sm w-full"
           />
         </div>
         <div className="flex flex-col gap-2 sm:col-span-2">
-          <label className="text-xs tracking-widest uppercase text-gray-500">Notes</label>
+          <label className="text-xs tracking-widest uppercase text-gray-500">შენიშვნები</label>
           <textarea
             value={info.notes}
             onChange={e => onChange('notes', e.target.value)}
-            placeholder="Any special requests or preferences…"
+            placeholder="განსაკუთრებული სურვილები..."
             rows={3}
             className="input-dark px-4 py-3 text-sm w-full resize-none"
           />
@@ -387,28 +387,28 @@ function ConfirmStep({
         <div className="w-16 h-16 border-2 border-gold flex items-center justify-center mx-auto mb-6">
           <span className="text-gold text-2xl">✓</span>
         </div>
-        <h3 className="font-serif text-3xl text-white mb-3">Booking Confirmed</h3>
+        <h3 className="font-serif text-3xl text-white mb-3">ჯავშანი დადასტურებულია</h3>
         <p className="text-gray-400 text-sm max-w-sm mx-auto mb-10 leading-relaxed">
-          Your appointment has been added to {barber.name}'s calendar.
-          {info.email && ' A confirmation has been sent to your email.'}
+          ჩანაწერი დაემატა {barber.name}-ის კალენდარს.
+          {info.email && ' ელ-ფოსტაზე გაიგზავნა დასტური.'}
         </p>
         <div className="max-w-xs mx-auto bg-ink-100 border border-ink-300 mb-8">
-          <SummaryRow label="Service" value={service.name} />
-          <SummaryRow label="Barber" value={barber.name} />
+          <SummaryRow label="სერვისი" value={service.name} />
+          <SummaryRow label="ბარბერი" value={barber.name} />
           <SummaryRow
-            label="Date"
+            label="თარიღი"
             value={format(new Date(date + 'T12:00:00'), 'EEEE, d MMMM yyyy')}
           />
-          <SummaryRow label="Time" value={`${time} (Tbilisi)`} />
-          <SummaryRow label="Price" value={`${service.price} GEL`} />
+          <SummaryRow label="დრო" value={`${time} (თბილისი)`} />
+          <SummaryRow label="ფასი" value={`${service.price} GEL`} />
         </div>
         <p className="text-gray-600 text-xs">
-          Need to cancel or change?{' '}
+          გაუქმება ან შეცვლა?{' '}
           <a
             href="tel:+995514400010"
             className="text-gold hover:text-gold-light transition-colors underline"
           >
-            Call us
+            დაგვიკავშირდი
           </a>
         </p>
       </div>
@@ -417,21 +417,21 @@ function ConfirmStep({
 
   return (
     <div>
-      <h3 className="font-serif text-2xl text-white mb-2">Confirm Booking</h3>
-      <p className="text-gray-500 text-sm mb-8">Review your appointment details below.</p>
+      <h3 className="font-serif text-2xl text-white mb-2">ჯავშნის დადასტურება</h3>
+      <p className="text-gray-500 text-sm mb-8">გადახედე ჩანაწერის დეტალებს.</p>
       <div className="max-w-sm bg-ink-200 border border-ink-300">
-        <SummaryRow label="Service" value={service.name} />
-        <SummaryRow label="Barber" value={barber.name} />
+        <SummaryRow label="სერვისი" value={service.name} />
+        <SummaryRow label="ბარბერი" value={barber.name} />
         <SummaryRow
-          label="Date"
+          label="თარიღი"
           value={format(new Date(date + 'T12:00:00'), 'EEEE, d MMMM yyyy')}
         />
-        <SummaryRow label="Time" value={`${time} (Tbilisi)`} />
-        <SummaryRow label="Duration" value={`${service.duration} min`} />
-        <SummaryRow label="Price" value={`${service.price} GEL`} />
-        <SummaryRow label="Name" value={info.name} />
-        <SummaryRow label="Phone" value={info.phone} />
-        {info.email && <SummaryRow label="Email" value={info.email} />}
+        <SummaryRow label="დრო" value={`${time} (თბილისი)`} />
+        <SummaryRow label="ხანგრძლივობა" value={`${service.duration} წთ`} />
+        <SummaryRow label="ფასი" value={`${service.price} GEL`} />
+        <SummaryRow label="სახელი" value={info.name} />
+        <SummaryRow label="ტელეფონი" value={info.phone} />
+        {info.email && <SummaryRow label="ელ-ფოსტა" value={info.email} />}
       </div>
       {result?.error && (
         <div className="mt-4 p-3 border border-red-900/50 bg-red-950/20 text-red-400 text-sm max-w-sm">
@@ -498,7 +498,7 @@ export default function Booking() {
       setResult({ success: true, eventId: data.eventId })
       setStep(4)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      const message = err instanceof Error ? err.message : 'შეცდომა. სცადე ხელახლა.'
       setResult({ success: false, error: message })
     } finally {
       setSubmitting(false)
@@ -522,12 +522,12 @@ export default function Booking() {
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-4">
             <div className="divider-gold" />
-            <span className="text-xs tracking-[0.3em] uppercase text-gold">Reservations</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-gold">ჯავშნები</span>
           </div>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-white">
-            Book Your
+            დაჯავშნე
             <br />
-            <span className="text-gold-gradient">Appointment</span>
+            <span className="text-gold-gradient">ვიზიტი</span>
           </h2>
         </div>
 
@@ -575,12 +575,12 @@ export default function Booking() {
                 disabled={step === 0}
                 className="btn-outline disabled:opacity-20"
               >
-                ← Back
+                ← უკან
               </button>
               <div className="flex items-center gap-4">
                 {service && step > 0 && (
                   <span className="text-gray-600 text-xs hidden sm:block">
-                    {service.name} · {barber?.name ?? '—'} · {service.price} GEL
+                    {service.name} · {barber?.name ?? '–'} · {service.price} GEL
                   </span>
                 )}
                 <button
@@ -591,12 +591,12 @@ export default function Booking() {
                   {submitting ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="w-4 h-4 border-2 border-ink/40 border-t-ink rounded-full animate-spin" />
-                      Booking…
+                      ჯავშანი...
                     </span>
                   ) : step === 3 ? (
-                    'Confirm Booking'
+                    'ჯავშნის დასტური'
                   ) : (
-                    'Continue →'
+                    'გაგრძელება →'
                   )}
                 </button>
               </div>
@@ -607,7 +607,7 @@ export default function Booking() {
           {step === 4 && result?.success && (
             <div className="mt-10 pt-6 border-t border-ink-300 text-center">
               <button onClick={resetBooking} className="btn-outline">
-                Book Another Appointment
+                კიდევ ერთი ჯავშანი
               </button>
             </div>
           )}
