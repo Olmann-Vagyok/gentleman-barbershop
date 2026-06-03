@@ -27,7 +27,9 @@ export default function Portfolio() {
 
   const featured = photos.filter(p => p.type === 'featured')
   const beforeAfter = photos.filter(p => p.type === 'before-after')
-  const barbers = Array.from(new Set(photos.map(p => p.barberId).filter(Boolean))) as string[]
+  const barberIds: string[] = []
+  photos.forEach(p => { if (p.barberId && !barberIds.includes(p.barberId)) barberIds.push(p.barberId) })
+  const barbers = barberIds
 
   const galleryPhotos = photos.filter(p => {
     if (filter === 'all') return p.type === 'gallery' || p.type === 'featured'
