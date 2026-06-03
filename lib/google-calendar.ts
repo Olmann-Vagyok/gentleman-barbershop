@@ -86,20 +86,19 @@ export async function createBooking({
 
   const event = await calendar.events.insert({
     calendarId,
-    sendUpdates: clientEmail ? 'all' : 'none',
+    sendUpdates: 'none',
     requestBody: {
       summary: `${serviceName} — ${clientName}`,
       description: [
-        `Service: ${serviceName}`,
-        `Client: ${clientName}`,
-        `Phone: ${clientPhone}`,
-        clientEmail ? `Email: ${clientEmail}` : '',
+        `სერვისი: ${serviceName}`,
+        `კლიენტი: ${clientName}`,
+        `ტელეფონი: ${clientPhone}`,
+        clientEmail ? `ელ-ფოსტა: ${clientEmail}` : '',
       ]
         .filter(Boolean)
         .join('\n'),
       start: { dateTime: startTime.toISOString(), timeZone: 'Asia/Tbilisi' },
       end: { dateTime: endTime.toISOString(), timeZone: 'Asia/Tbilisi' },
-      attendees: clientEmail ? [{ email: clientEmail, displayName: clientName }] : [],
     },
   })
 
