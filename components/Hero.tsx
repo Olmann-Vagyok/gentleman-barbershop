@@ -1,6 +1,8 @@
-import { SHOP_INFO } from '@/lib/data'
+import { getShopInfo } from '@/lib/store'
 
-export default function Hero() {
+export default async function Hero() {
+  const info = await getShopInfo()
+
   return (
     <section
       id="home"
@@ -9,7 +11,6 @@ export default function Hero() {
       {/* Background layers */}
       <div className="absolute inset-0 bg-ink z-0" />
       <div className="absolute inset-0 z-0">
-        {/* Subtle grain texture */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -18,19 +19,13 @@ export default function Hero() {
             backgroundSize: '200px',
           }}
         />
-        {/* Gold radial glow top-left */}
         <div
           className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-5"
-          style={{
-            background: 'radial-gradient(circle, #C9A84C 0%, transparent 70%)',
-          }}
+          style={{ background: 'radial-gradient(circle, #C9A84C 0%, transparent 70%)' }}
         />
-        {/* Subtle right glow */}
         <div
           className="absolute top-1/2 -right-60 w-[500px] h-[500px] rounded-full opacity-[0.04]"
-          style={{
-            background: 'radial-gradient(circle, #C9A84C 0%, transparent 70%)',
-          }}
+          style={{ background: 'radial-gradient(circle, #C9A84C 0%, transparent 70%)' }}
         />
       </div>
 
@@ -44,7 +39,7 @@ export default function Hero() {
         <div className="flex items-center gap-4 mb-10">
           <div className="w-12 h-px bg-gold opacity-60" />
           <span className="text-xs tracking-[0.3em] uppercase text-gold opacity-80">
-            დაარსდა თბილისში, საქართველო
+            {(info as any).heroEyebrow ?? 'დაარსდა თბილისში, საქართველო'}
           </span>
         </div>
 
@@ -62,23 +57,22 @@ export default function Hero() {
         <div className="flex items-center gap-6 mb-12">
           <div className="h-px flex-1 max-w-[80px] bg-ink-400" />
           <p className="text-sm md:text-base tracking-[0.25em] uppercase text-gray-400">
-            {SHOP_INFO.tagline}
+            {info.tagline}
           </p>
         </div>
 
         {/* Description */}
         <p className="text-gray-400 text-base md:text-lg max-w-md leading-relaxed mb-14">
-          პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, წვერის მოვლა და სტაილინგი
-          გამოცდილ ოსტატთა გუნდისგან. ყოველ დღე ღიაა.
+          {(info as any).heroDescription ?? 'პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, წვერის მოვლა და სტაილინგი გამოცდილ ოსტატთა გუნდისგან. ყოველ დღე ღიაა.'}
         </p>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4">
           <a href="#booking" className="btn-gold inline-block text-center">
-            დაჯავშნე ვიზიტი
+            {(info as any).heroCtaPrimary ?? 'დაჯავშნე ვიზიტი'}
           </a>
           <a href="#services" className="btn-outline inline-block text-center">
-            სერვისები
+            {(info as any).heroCtaSecondary ?? 'სერვისები'}
           </a>
         </div>
 
@@ -86,7 +80,7 @@ export default function Hero() {
         <div className="mt-20 pt-8 border-t border-ink-300 grid grid-cols-3 gap-8 max-w-md">
           {[
             { value: '5', label: 'გამოცდილი ბარბერი' },
-            { value: SHOP_INFO.rating, label: 'საშ. შეფასება' },
+            { value: info.rating, label: 'საშ. შეფასება' },
             { value: '7', label: 'დღე კვირაში' },
           ].map(stat => (
             <div key={stat.label}>

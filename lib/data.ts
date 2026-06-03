@@ -130,6 +130,10 @@ export const SHOP_INFO = {
   mapUrl: 'https://maps.google.com/?q=41.71896,44.78069',
   rating: '4.7',
   reviews: '19+',
+  heroEyebrow: 'დაარსდა თბილისში, საქართველო',
+  heroDescription: 'პრემიუმ სალონი თბილისში. პროფესიული სტრიჟკები, წვერის მოვლა და სტაილინგი გამოცდილ ოსტატთა გუნდისგან. ყოველ დღე ღიაა.',
+  heroCtaPrimary: 'დაჯავშნე ვიზიტი',
+  heroCtaSecondary: 'სერვისები',
 }
 
 export const WORKING_HOURS = {
