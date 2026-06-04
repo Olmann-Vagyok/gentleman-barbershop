@@ -3,7 +3,16 @@ import { getServices, getBarbers, getShopInfo, setServices, setBarbers, setShopI
 
 function checkAuth(req: NextRequest) {
   const pw = req.headers.get('x-admin-password')
-  return pw && pw === process.env.ADMIN_PASSWORD
+  const username = req.headers.get('x-admin-username') ?? 'admin'
+  if (username === 'admin') return pw === process.env.ADMIN_PASSWORD
+  // Barbers can read data but not write
+  const envKey = `BARBER_LOGIN_${username.toUpperCase()}`
+  return pw === process.env[envKey]
+}
+
+function checkAdminOnly(req: NextRequest) {
+  const pw = req.headers.get('x-admin-password')
+  return pw === process.env.ADMIN_PASSWORD
 }
 
 export async function GET(req: NextRequest) {
@@ -17,7 +26,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!checkAdminOnly(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const { type, data } = await req.json()
     if (type === 'services') await setServices(data)
