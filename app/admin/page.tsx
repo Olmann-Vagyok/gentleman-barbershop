@@ -12,7 +12,8 @@ type ShopInfo = Record<string, string>
 type Booking  = { id: string; barberId: string; barber: string; summary: string; start: string; end: string; description: string }
 type Photo    = { id: string; url: string; type: 'gallery' | 'before-after' | 'featured'; barberId?: string; caption?: string; createdAt: number }
 type Session  = { username: string; password: string; role: 'admin' | 'barber'; barberId?: string; barberName?: string }
-type Tab      = 'dashboard' | 'calendar' | 'bookings' | 'services' | 'barbers' | 'gallery' | 'shop'
+type Tab      = 'dashboard' | 'calendar' | 'bookings' | 'services' | 'barbers' | 'gallery' | 'shop' | 'users'
+type UserRecord = { id: string; username: string; role: 'admin' | 'barber'; barberId?: string; displayName: string }
 
 const BARBER_COLORS: Record<string, string> = {
   mariam: '#C9A84C',
@@ -463,6 +464,88 @@ function GalleryUpload({ barbers, onUpload, uploading }: {
   )
 }
 
+// ─── Change password modal ───────────────────────────────────────────────────
+
+function ChangePasswordModal({ session, onClose, onSuccess }: {
+  session: Session
+  onClose: () => void
+  onSuccess: (newUsername: string, newPassword: string) => void
+}) {
+  const [newUsername, setNewUsername] = useState(session.username)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirm,     setConfirm]     = useState('')
+  const [error,       setError]       = useState('')
+  const [saving,      setSaving]      = useState(false)
+  const [done,        setDone]        = useState(false)
+
+  async function handleSave() {
+    setError('')
+    if (newPassword && newPassword !== confirm) { setError('Passwords do not match'); return }
+    if (newPassword && newPassword.length < 6)  { setError('Password must be at least 6 characters'); return }
+    if (!newPassword && newUsername === session.username) { setError('No changes made'); return }
+
+    setSaving(true)
+    try {
+      const body: Record<string, string> = {}
+      if (newUsername !== session.username) body.newUsername = newUsername
+      if (newPassword) body.newPassword = newPassword
+
+      const res  = await fetch('/api/admin/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-username': session.username, 'x-admin-password': session.password },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'Error'); return }
+      setDone(true)
+      setTimeout(() => { onSuccess(data.username ?? newUsername, newPassword || session.password) }, 1200)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-[#141414] border border-[#2a2a2a] p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-white font-semibold">Account Settings</h3>
+          <button onClick={onClose} className="text-gray-600 hover:text-white text-lg leading-none">✕</button>
+        </div>
+
+        {done ? (
+          <p className="text-green-400 text-sm text-center py-4">შენახულია ✓</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-2">Username</label>
+              <input value={newUsername} onChange={e => setNewUsername(e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-2">New Password</label>
+              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                placeholder="Leave blank to keep current"
+                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+            </div>
+            {newPassword && (
+              <div>
+                <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-2">Confirm Password</label>
+                <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+                  className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+              </div>
+            )}
+            {error && <p className="text-red-400 text-xs">{error}</p>}
+            <button onClick={handleSave} disabled={saving}
+              className="w-full py-3 bg-[#C9A84C] text-[#0a0a0a] text-xs font-bold tracking-widest uppercase hover:bg-[#b8953d] transition-colors disabled:opacity-50 mt-1">
+              {saving ? '...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main admin page ──────────────────────────────────────────────────────────
 
 export default function AdminPage() {
@@ -479,7 +562,9 @@ export default function AdminPage() {
   const [igInput, setIgInput]   = useState('')
   const [uploading, setUploading] = useState(false)
   const [saveMsg, setSaveMsg]   = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen]       = useState(false)
+  const [showChangePw, setShowChangePw]     = useState(false)
+  const [users, setUsers]                   = useState<UserRecord[]>([])
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -503,6 +588,7 @@ export default function AdminPage() {
     loadBookings(s)
     loadPhotos(s)
     loadIgUrls(s)
+    if (s.role === 'admin') loadUsers(s)
   }
 
   const loadBookings = useCallback(async (s?: Session) => {
@@ -530,6 +616,25 @@ export default function AdminPage() {
     const data = await res.json()
     setIgUrls(data.urls ?? [])
   }, [session])
+
+  const loadUsers = useCallback(async (s?: Session) => {
+    const sess = s ?? session
+    if (!sess) return
+    const res  = await fetch('/api/admin/users', { headers: authHeaders(sess) })
+    if (res.ok) { const d = await res.json(); setUsers(d.users ?? []) }
+  }, [session])
+
+  async function adminSetUser(userId: string, username?: string, password?: string) {
+    if (!session) return
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
+      body: JSON.stringify({ userId, username, password }),
+    })
+    const data = await res.json()
+    if (res.ok) { setSaveMsg('შენახულია ✓'); loadUsers(); setTimeout(() => setSaveMsg(''), 3000) }
+    else        { setSaveMsg(data.error ?? 'შეცდომა');    setTimeout(() => setSaveMsg(''), 3000) }
+  }
 
   async function addIgUrl() {
     if (!session || !igInput.trim()) return
@@ -610,6 +715,13 @@ export default function AdminPage() {
 
   if (!session) return <LoginScreen onLogin={handleLogin} />
 
+  function handlePasswordChanged(newUsername: string, newPw: string) {
+    const updated = { ...session!, username: newUsername, password: newPw }
+    localStorage.setItem('admin_session', JSON.stringify(updated))
+    setSession(updated)
+    setShowChangePw(false)
+  }
+
   const isAdmin = session.role === 'admin'
 
   const todayBookings = bookings.filter(b => isToday(new Date(b.start)))
@@ -629,6 +741,7 @@ export default function AdminPage() {
       { id: 'barbers'  as Tab, label: 'ბარბერები', icon: '◆' },
       { id: 'gallery'  as Tab, label: 'გალერეა',   icon: '◻' },
       { id: 'shop'     as Tab, label: 'სალონი',    icon: '◉' },
+      { id: 'users'    as Tab, label: 'მომხ.',     icon: '⊕' },
     ] : []),
   ]
 
@@ -686,6 +799,9 @@ export default function AdminPage() {
           <a href="/" target="_blank" className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 hover:text-white transition-colors">
             <span>↗</span> საიტი
           </a>
+          <button onClick={() => setShowChangePw(true)} className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 hover:text-[#C9A84C] transition-colors">
+            <span>⚙</span> პაროლის შეცვლა
+          </button>
           <button onClick={logout} className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 hover:text-red-400 transition-colors">
             <span>→</span> გასვლა
           </button>
@@ -913,6 +1029,11 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* USERS */}
+          {tab === 'users' && isAdmin && (
+            <UsersTab users={users} session={session} onSave={adminSetUser} onReload={loadUsers} />
+          )}
+
           {/* SHOP */}
           {tab === 'shop' && isAdmin && shopInfo && (
             <div>
@@ -939,6 +1060,129 @@ export default function AdminPage() {
 
         </div>
       </main>
+
+      {showChangePw && (
+        <ChangePasswordModal
+          session={session}
+          onClose={() => setShowChangePw(false)}
+          onSuccess={handlePasswordChanged}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Users tab ────────────────────────────────────────────────────────────────
+
+function UsersTab({ users, session, onSave, onReload }: {
+  users: UserRecord[]
+  session: Session
+  onSave: (userId: string, username?: string, password?: string) => void
+  onReload: () => void
+}) {
+  const [editing, setEditing] = useState<string | null>(null)
+  const [draftUsername, setDraftUsername] = useState('')
+  const [draftPassword, setDraftPassword] = useState('')
+  const [confirm,        setConfirm]       = useState('')
+  const [error,          setError]         = useState('')
+
+  function startEdit(user: UserRecord) {
+    setEditing(user.id)
+    setDraftUsername(user.username)
+    setDraftPassword('')
+    setConfirm('')
+    setError('')
+  }
+
+  function handleSave(userId: string) {
+    setError('')
+    if (draftPassword && draftPassword !== confirm) { setError('Passwords do not match'); return }
+    if (draftPassword && draftPassword.length < 6)  { setError('Min 6 characters'); return }
+    onSave(userId, draftUsername || undefined, draftPassword || undefined)
+    setEditing(null)
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="font-serif text-3xl text-white mb-1">მომხმარებლები</h1>
+          <p className="text-gray-600 text-sm">შეცვალე username ან reset გააკეთე პაროლი</p>
+        </div>
+        <button onClick={onReload} className="text-xs tracking-widest uppercase text-gray-500 hover:text-white border border-[#1e1e1e] px-4 py-2 transition-colors">
+          განახლება ↺
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {users.map(user => (
+          <div key={user.id} className="bg-[#141414] border border-[#1e1e1e] p-5">
+            {editing === user.id ? (
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="w-2 h-2 rounded-full" style={{ background: user.barberId ? (BARBER_COLORS[user.barberId] ?? '#C9A84C') : '#C9A84C' }} />
+                  <span className="text-white font-medium">{user.displayName}</span>
+                  <span className="text-[10px] tracking-widest uppercase text-gray-600">{user.role}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">Username</label>
+                    <input value={draftUsername} onChange={e => setDraftUsername(e.target.value)}
+                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2 text-sm outline-none focus:border-[#C9A84C]" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">New Password</label>
+                    <input type="password" value={draftPassword} onChange={e => setDraftPassword(e.target.value)}
+                      placeholder="Leave blank to keep"
+                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2 text-sm outline-none focus:border-[#C9A84C]" />
+                  </div>
+                  {draftPassword && (
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">Confirm Password</label>
+                      <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+                        className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2 text-sm outline-none focus:border-[#C9A84C]" />
+                    </div>
+                  )}
+                </div>
+                {error && <p className="text-red-400 text-xs">{error}</p>}
+                <div className="flex gap-2 mt-1">
+                  <button onClick={() => handleSave(user.id)}
+                    className="px-5 py-2 bg-[#C9A84C] text-[#0a0a0a] text-xs font-bold tracking-widest uppercase hover:bg-[#b8953d] transition-colors">
+                    შენახვა
+                  </button>
+                  <button onClick={() => setEditing(null)}
+                    className="px-5 py-2 border border-[#2a2a2a] text-gray-500 hover:text-white text-xs tracking-widest uppercase transition-colors">
+                    გაუქმება
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 flex items-center justify-center border"
+                    style={{ borderColor: (user.barberId ? BARBER_COLORS[user.barberId] : '#C9A84C') + '40' }}>
+                    <span className="font-serif font-bold text-sm" style={{ color: (user.barberId ? BARBER_COLORS[user.barberId] : '#C9A84C') + '99' }}>
+                      {user.displayName[0]}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium text-sm">{user.displayName}</p>
+                    <p className="text-gray-600 text-xs mt-0.5">
+                      <span className="font-mono text-gray-400">{user.username}</span>
+                      <span className="mx-2 text-gray-700">·</span>
+                      <span className="tracking-widest uppercase">{user.role}</span>
+                    </p>
+                  </div>
+                </div>
+                <button onClick={() => startEdit(user)}
+                  className="text-xs tracking-widest uppercase text-gray-600 hover:text-[#C9A84C] border border-[#1e1e1e] hover:border-[#C9A84C]/30 px-3 py-1.5 transition-colors shrink-0">
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
