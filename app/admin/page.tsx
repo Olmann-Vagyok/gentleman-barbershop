@@ -14,6 +14,7 @@ type Photo    = { id: string; url: string; type: 'gallery' | 'before-after' | 'f
 type Session  = { username: string; password: string; role: 'admin' | 'barber'; barberId?: string; barberName?: string }
 type Tab      = 'dashboard' | 'calendar' | 'bookings' | 'services' | 'barbers' | 'gallery' | 'shop' | 'users'
 type UserRecord = { id: string; username: string; role: 'admin' | 'barber'; barberId?: string; displayName: string }
+type BookingFormData = { barberId: string; date: string; startTime: string; endTime: string; title: string; clientName: string; clientPhone: string; description: string }
 
 const BARBER_COLORS: Record<string, string> = {
   mariam: '#C9A84C',
@@ -134,7 +135,11 @@ function LoginScreen({ onLogin }: { onLogin: (s: Session) => void }) {
 
 // ─── Calendar view ───────────────────────────────────────────────────────────
 
-function CalendarView({ bookings, session }: { bookings: Booking[]; session: Session }) {
+function CalendarView({ bookings, session, onDelete, onEdit }: {
+  bookings: Booking[]; session: Session
+  onDelete: (b: Booking) => void
+  onEdit:   (b: Booking) => void
+}) {
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [selected, setSelected]   = useState<Booking | null>(null)
 
@@ -318,6 +323,18 @@ function CalendarView({ bookings, session }: { bookings: Booking[]; session: Ses
                 </div>
               )}
             </div>
+            {session.role === 'admin' && (
+              <div className="flex gap-2 mt-5">
+                <button onClick={() => { setSelected(null); onEdit(selected) }}
+                  className="flex-1 py-2.5 border border-[#C9A84C]/40 text-[#C9A84C] text-xs tracking-widest uppercase hover:bg-[#C9A84C]/10 transition-colors">
+                  რედაქტირება
+                </button>
+                <button onClick={() => { setSelected(null); onDelete(selected) }}
+                  className="flex-1 py-2.5 border border-red-900/40 text-red-400 text-xs tracking-widest uppercase hover:bg-red-950/20 transition-colors">
+                  წაშლა
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -327,7 +344,11 @@ function CalendarView({ bookings, session }: { bookings: Booking[]; session: Ses
 
 // ─── Booking card ────────────────────────────────────────────────────────────
 
-function BookingCard({ booking, highlight = false }: { booking: Booking; highlight?: boolean }) {
+function BookingCard({ booking, highlight = false, onDelete, onEdit }: {
+  booking: Booking; highlight?: boolean
+  onDelete?: (b: Booking) => void
+  onEdit?:   (b: Booking) => void
+}) {
   const start  = new Date(booking.start)
   const end    = new Date(booking.end)
   const today_ = isToday(start)
@@ -351,13 +372,29 @@ function BookingCard({ booking, highlight = false }: { booking: Booking; highlig
         )}
       </div>
       <div className="hidden sm:block w-px bg-[#1e1e1e] self-stretch" />
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <p className="text-white font-medium">{booking.summary}</p>
         <p className="text-[10px] tracking-widest uppercase mt-0.5 mb-2" style={{ color }}>{booking.barber}</p>
         {booking.description && (
           <p className="text-gray-600 text-xs leading-relaxed whitespace-pre-line">{booking.description}</p>
         )}
       </div>
+      {(onEdit || onDelete) && (
+        <div className="flex sm:flex-col gap-1.5 shrink-0">
+          {onEdit && (
+            <button onClick={() => onEdit(booking)}
+              className="text-[10px] tracking-widest uppercase text-gray-600 hover:text-[#C9A84C] border border-[#1e1e1e] hover:border-[#C9A84C]/30 px-2.5 py-1.5 transition-colors">
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button onClick={() => onDelete(booking)}
+              className="text-[10px] tracking-widest uppercase text-gray-600 hover:text-red-400 border border-[#1e1e1e] hover:border-red-900/30 px-2.5 py-1.5 transition-colors">
+              Del
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -546,6 +583,148 @@ function ChangePasswordModal({ session, onClose, onSuccess }: {
   )
 }
 
+// ─── Booking form modal (create / edit) ─────────────────────────────────────
+
+function BookingFormModal({ session, barbers, initial, onClose, onSaved }: {
+  session: Session
+  barbers: Barber[]
+  initial?: Booking          // if set → edit mode
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const isEdit = !!initial
+
+  function toLocalTime(iso: string) {
+    const d = new Date(iso)
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  }
+  function toLocalDate(iso: string) {
+    const d = new Date(iso)
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+  }
+
+  const [form, setForm] = useState<BookingFormData>({
+    barberId:    initial?.barberId  ?? barbers[0]?.id ?? '',
+    date:        initial ? toLocalDate(initial.start) : format(new Date(), 'yyyy-MM-dd'),
+    startTime:   initial ? toLocalTime(initial.start) : '11:00',
+    endTime:     initial ? toLocalTime(initial.end)   : '12:00',
+    title:       initial?.summary     ?? '',
+    clientName:  '',
+    clientPhone: '',
+    description: initial?.description ?? '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [error,  setError]  = useState('')
+
+  const set = (k: keyof BookingFormData, v: string) => setForm(f => ({ ...f, [k]: v }))
+
+  async function handleSave() {
+    if (!form.barberId || !form.date || !form.startTime || !form.endTime || !form.title) {
+      setError('შეავსე ყველა სავალდებულო ველი'); return
+    }
+    setSaving(true); setError('')
+    try {
+      const headers = { 'Content-Type': 'application/json', 'x-admin-username': session.username, 'x-admin-password': session.password }
+      if (isEdit) {
+        const res = await fetch('/api/admin/bookings', {
+          method: 'PATCH', headers,
+          body: JSON.stringify({ eventId: initial!.id, barberId: form.barberId, date: form.date, startTime: form.startTime, endTime: form.endTime, summary: form.title, description: form.description }),
+        })
+        if (!res.ok) { setError((await res.json()).error ?? 'შეცდომა'); return }
+      } else {
+        const [sh, sm] = form.startTime.split(':').map(Number)
+        const [eh, em] = form.endTime.split(':').map(Number)
+        const durationMinutes = (eh * 60 + em) - (sh * 60 + sm)
+        const res = await fetch('/api/admin/bookings', {
+          method: 'POST', headers,
+          body: JSON.stringify({ barberId: form.barberId, date: form.date, time: form.startTime, durationMinutes, title: form.title, clientName: form.clientName, clientPhone: form.clientPhone, description: form.description }),
+        })
+        if (!res.ok) { setError((await res.json()).error ?? 'შეცდომა'); return }
+      }
+      onSaved()
+    } catch { setError('კავშირის შეცდომა') }
+    finally  { setSaving(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-[#141414] border border-[#2a2a2a] p-6 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-white font-semibold">{isEdit ? 'ჯავშნის რედაქტირება' : 'ახალი ჯავშანი'}</h3>
+          <button onClick={onClose} className="text-gray-600 hover:text-white text-lg leading-none">✕</button>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">ბარბერი *</label>
+            <select value={form.barberId} onChange={e => set('barberId', e.target.value)} disabled={isEdit}
+              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C] disabled:opacity-50">
+              {barbers.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">სახელი / სერვისი *</label>
+            <input value={form.title} onChange={e => set('title', e.target.value)} placeholder="მაგ. თმის შეჭრა — გიორგი"
+              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">თარიღი *</label>
+              <input type="date" value={form.date} onChange={e => set('date', e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">დასაწყისი *</label>
+              <input type="time" value={form.startTime} onChange={e => set('startTime', e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">დასასრული *</label>
+              <input type="time" value={form.endTime} onChange={e => set('endTime', e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+            </div>
+          </div>
+
+          {!isEdit && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">კლიენტი</label>
+                <input value={form.clientName} onChange={e => set('clientName', e.target.value)} placeholder="სახელი"
+                  className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+              </div>
+              <div>
+                <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">ტელეფონი</label>
+                <input value={form.clientPhone} onChange={e => set('clientPhone', e.target.value)} placeholder="+995..."
+                  className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">შენიშვნა</label>
+            <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3}
+              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C] resize-none" />
+          </div>
+
+          {error && <p className="text-red-400 text-xs">{error}</p>}
+
+          <div className="flex gap-2 mt-1">
+            <button onClick={handleSave} disabled={saving}
+              className="flex-1 py-3 bg-[#C9A84C] text-[#0a0a0a] text-xs font-bold tracking-widest uppercase hover:bg-[#b8953d] transition-colors disabled:opacity-50">
+              {saving ? '...' : (isEdit ? 'შენახვა' : 'შექმნა')}
+            </button>
+            <button onClick={onClose} className="px-6 py-3 border border-[#2a2a2a] text-gray-500 hover:text-white text-xs tracking-widest uppercase transition-colors">
+              გაუქმება
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main admin page ──────────────────────────────────────────────────────────
 
 export default function AdminPage() {
@@ -565,6 +744,7 @@ export default function AdminPage() {
   const [sidebarOpen, setSidebarOpen]       = useState(false)
   const [showChangePw, setShowChangePw]     = useState(false)
   const [users, setUsers]                   = useState<UserRecord[]>([])
+  const [bookingForm, setBookingForm]       = useState<{ mode: 'create' | 'edit'; booking?: Booking } | null>(null)
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -685,6 +865,24 @@ export default function AdminPage() {
       body: JSON.stringify({ id }),
     })
     setPhotos(prev => prev.filter(p => p.id !== id))
+  }
+
+  async function deleteBooking(booking: Booking) {
+    if (!session) return
+    if (!confirm(`წაიშლება: "${booking.summary}" — დარწმუნებული ხარ?`)) return
+    const res = await fetch('/api/admin/bookings', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...authHeaders(session) },
+      body: JSON.stringify({ eventId: booking.id, barberId: booking.barberId }),
+    })
+    if (res.ok) {
+      setBookings(prev => prev.filter(b => b.id !== booking.id))
+      setSaveMsg('წაიშალა ✓')
+      setTimeout(() => setSaveMsg(''), 3000)
+    } else {
+      setSaveMsg('შეცდომა წაშლისას')
+      setTimeout(() => setSaveMsg(''), 3000)
+    }
   }
 
   async function save(type: string, data: unknown) {
@@ -861,13 +1059,26 @@ export default function AdminPage() {
           {/* CALENDAR */}
           {tab === 'calendar' && (
             <div>
+              {isAdmin && (
+                <div className="flex justify-end mb-4">
+                  <button onClick={() => setBookingForm({ mode: 'create' })}
+                    className="text-xs tracking-widest uppercase text-[#0a0a0a] bg-[#C9A84C] hover:bg-[#b8953d] transition-colors px-4 py-2 font-bold">
+                    + ახალი ჯავშანი
+                  </button>
+                </div>
+              )}
               {calendarNotConfigured ? (
                 <div className="border border-[#C9A84C]/20 bg-[#C9A84C]/5 p-6 text-center">
                   <p className="text-[#C9A84C] text-sm">Google Calendar არ არის დაკავშირებული</p>
                   <p className="text-gray-600 text-xs mt-1">დააყენე env ცვლადები Vercel-ში</p>
                 </div>
               ) : (
-                <CalendarView bookings={bookings} session={session} />
+                <CalendarView
+                  bookings={bookings}
+                  session={session}
+                  onDelete={deleteBooking}
+                  onEdit={b => setBookingForm({ mode: 'edit', booking: b })}
+                />
               )}
             </div>
           )}
@@ -880,10 +1091,18 @@ export default function AdminPage() {
                   <h1 className="font-serif text-3xl text-white mb-1">ჯავშნები</h1>
                   <p className="text-gray-600 text-sm">მომავალი 60 დღე</p>
                 </div>
-                <button onClick={() => loadBookings()}
-                  className="text-xs tracking-widest uppercase text-gray-500 hover:text-white transition-colors border border-[#1e1e1e] px-4 py-2">
-                  განახლება ↺
-                </button>
+                <div className="flex items-center gap-2">
+                  {isAdmin && (
+                    <button onClick={() => setBookingForm({ mode: 'create' })}
+                      className="text-xs tracking-widest uppercase text-[#0a0a0a] bg-[#C9A84C] hover:bg-[#b8953d] transition-colors px-4 py-2 font-bold">
+                      + ახალი
+                    </button>
+                  )}
+                  <button onClick={() => loadBookings()}
+                    className="text-xs tracking-widest uppercase text-gray-500 hover:text-white transition-colors border border-[#1e1e1e] px-4 py-2">
+                    განახლება ↺
+                  </button>
+                </div>
               </div>
               {bookingsError && (
                 <div className="border border-red-900/30 bg-red-950/10 p-4 text-red-400 text-sm mb-6">{bookingsError}</div>
@@ -899,7 +1118,14 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {bookings.map(b => <BookingCard key={b.id} booking={b} />)}
+                  {bookings.map(b => (
+                    <BookingCard
+                      key={b.id}
+                      booking={b}
+                      onDelete={isAdmin ? deleteBooking : undefined}
+                      onEdit={isAdmin ? (b => setBookingForm({ mode: 'edit', booking: b })) : undefined}
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -1066,6 +1292,16 @@ export default function AdminPage() {
           session={session}
           onClose={() => setShowChangePw(false)}
           onSuccess={handlePasswordChanged}
+        />
+      )}
+
+      {bookingForm && (
+        <BookingFormModal
+          session={session}
+          barbers={barbers}
+          initial={bookingForm.booking}
+          onClose={() => setBookingForm(null)}
+          onSaved={() => { setBookingForm(null); loadBookings(); setSaveMsg(bookingForm.mode === 'edit' ? 'შენახულია ✓' : 'ჯავშანი შეიქმნა ✓'); setTimeout(() => setSaveMsg(''), 3000) }}
         />
       )}
     </div>
