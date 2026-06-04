@@ -101,3 +101,27 @@ export async function setInstagramUrls(urls: string[]): Promise<void> {
   const db = await kv()
   await db.set('instagram_urls', urls)
 }
+
+export type Account = {
+  id: string
+  name: string
+  role: 'admin' | 'barber'
+  barberId?: string
+  password: string
+}
+
+export async function getAccounts(): Promise<Account[]> {
+  if (!kvAvailable()) return []
+  try {
+    const db = await kv()
+    const stored = await db.get<Account[]>('accounts')
+    return stored ?? []
+  } catch {
+    return []
+  }
+}
+
+export async function setAccounts(data: Account[]): Promise<void> {
+  const db = await kv()
+  await db.set('accounts', data)
+}
