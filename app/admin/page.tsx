@@ -669,18 +669,18 @@ function BookingFormModal({ session, barbers, initial, onClose, onSaved }: {
               className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2 sm:col-span-1">
               <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">თარიღი *</label>
               <input type="date" value={form.date} onChange={e => set('date', e.target.value)}
                 className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
             </div>
-            <div>
+            <div className="col-span-1">
               <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">დასაწყისი *</label>
               <input type="time" value={form.startTime} onChange={e => set('startTime', e.target.value)}
                 className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
             </div>
-            <div>
+            <div className="col-span-1 sm:col-span-1">
               <label className="text-[10px] tracking-widest uppercase text-gray-600 block mb-1.5">დასასრული *</label>
               <input type="time" value={form.endTime} onChange={e => set('endTime', e.target.value)}
                 className="w-full bg-[#0a0a0a] border border-[#2a2a2a] text-white px-3 py-2.5 text-sm outline-none focus:border-[#C9A84C]" />
