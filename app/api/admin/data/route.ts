@@ -1,28 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServices, getBarbers, getShopInfo, setServices, setBarbers, setShopInfo } from '@/lib/store'
-
-function checkAuth(req: NextRequest) {
-  const pw = req.headers.get('x-admin-password')
-  return pw && pw === process.env.ADMIN_PASSWORD
-}
+import { authFromRequest } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const [services, barbers, shopInfo] = await Promise.all([
-    getServices(),
-    getBarbers(),
-    getShopInfo(),
-  ])
+  const session = await authFromRequest(req)
+  if (!session.valid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const [services, barbers, shopInfo] = await Promise.all([getServices(), getBarbers(), getShopInfo()])
   return NextResponse.json({ services, barbers, shopInfo })
 }
 
 export async function POST(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const session = await authFromRequest(req)
+  if (!session.valid || session.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const { type, data } = await req.json()
-    if (type === 'services') await setServices(data)
-    else if (type === 'barbers') await setBarbers(data)
-    else if (type === 'shopInfo') await setShopInfo(data)
+    if (type === 'services')  await setServices(data)
+    else if (type === 'barbers')   await setBarbers(data)
+    else if (type === 'shopInfo')  await setShopInfo(data)
     else return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
     return NextResponse.json({ success: true })
   } catch (err) {
